@@ -1,0 +1,9 @@
+gz_outputs/
+lit_review/
+plots/
+pyInput/
+raw_outputs/
+step_kinem/
+support_particles/
+inputs/*/text_files/
+inputs/*/test_plots/
