@@ -23,11 +23,11 @@ def grab_dimTime_timeStep (t:float, stat:str, model_output_dt  = 50, num_header_
     dt, ts = statistics.loc[closest_index, ['dimtime', 'ts']]
     return (dt/1e+06, ts)
 
-def grab_dimTime_fields (dir: str, stat:str, time):
+def grab_dimTime_fields (dir: str, stat:str, time, skiprows = 15):
     ts = len(os.listdir(dir))
     for t in range(ts):
         time[t,0] = t
-    filt = stat.loc[:,21].notnull()
+    filt = stat.loc[:,skiprows].notnull()
     time[:,1] = stat[filt].loc[:,1]
     return time
 

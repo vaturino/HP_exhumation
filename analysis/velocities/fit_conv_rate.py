@@ -65,8 +65,11 @@ def main():
     #create DataFrame
     df = pd.read_csv(vel_file, sep=" ", index_col=False)
     dimt = np.array(df.time).flatten()
-    cr = np.array(df.conv_rate).flatten()
+    cr = np.array(df.conv_rate/1e2).flatten()
+    cr[0] = 0.
 
+    # print(dimt, cr)
+    # exit()
     bp = 3
     cr_fit = piecewise_regression.Fit(dimt, cr, n_breakpoints=bp)
     summary = cr_fit.summary()
@@ -102,7 +105,7 @@ def main():
         reworked["b"].iloc[i]=summ[summ.iloc[:,0].str.contains('const')].iloc[i,1]
     for i in range(t):
         reworked["t"].iloc[i]=summ[summ.iloc[:,0].str.contains('break')].iloc[i,1]
-    reworked['t'].iloc[-1] = 50.e6
+    reworked['t'].iloc[-1] = 70.e6
     coeff = reworked.astype(float)
     coeff = get_const(coeff)
     n = len(coeff)
@@ -110,7 +113,7 @@ def main():
 
     
     t = np.zeros(bp+2)
-    t[-1] = 50.e6
+    t[-1] = 70.e6
     t[0] = 0.
     time = np.zeros((bp+1, 10))
     for n in range(bp+1):
@@ -129,7 +132,7 @@ def main():
     plt.xlabel("Time (yr)")
     plt.ylabel("Orthogonal convergence rate (m/yr)")
     plt.legend()
-    plt.savefig(f"{plot_loc}/fit_cr.png")
+    plt.savefig(f"{plot_loc}/fit_cr.eps")
     plt.close()
 
 

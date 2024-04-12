@@ -59,13 +59,13 @@ def main():
             plotname = f"{plot_loc}{t}.eps" 
             data = pd.read_parquet(f"{csvs_loc}{m}/fields/full.{int(t)}.gzip") 
           
-            pts = get_points_with_y_in(data, 5.e3, 2.e3, ymax = 900.e3)
+            pts = get_points_with_y_in(data, 15.e3, 2.e3, ymax = 900.e3)
             trench= get_trench_position(pts,threshold = 0.13e7)
             xmin_plot = trench -100.e3
             xmax_plot = trench + 300.e3
             ymin_plot = 700.e3
             ymax_plot = 900.e3
-            # print(trench)
+            print(trench)
             
             X_low, Y_low, X_vels, Y_vels, X_crust, Y_crust = create_grid_velocities_crust (xmin_plot, xmax_plot, ymin_plot, ymax_plot, grid_res, grid_low_res, grid_high_res)
 

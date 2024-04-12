@@ -51,11 +51,11 @@ def main():
         if not os.path.exists(plot_loc):
             os.mkdir(plot_loc)
 
-        # for t in tqdm(range(0, len(time_array))):
-        for t in tqdm([1, 25, 50]):
+        for t in tqdm(range(1, len(time_array), 5)):
+        # for t in tqdm([1, 25, 50]):
             fig=plt.figure()
             gs=GridSpec(2,1)
-            plotname = f"{plot_loc}{t}.eps" 
+            plotname = f"{plot_loc}{t}.png" 
             data = pd.read_parquet(f"{csvs_loc}{m}/fields/full.{int(t)}.gzip") 
             T, visc, vx, vz, comp = interp_T_visc_vx_vz_compCrust(data.loc[:,'Points:0'], data.loc[:,'Points:1'], data.loc[:,'T'], data.loc[:,'viscosity'], data.loc[:,'velocity:0'], data.loc[:,'velocity:1'], data.loc[:,'oc'],  X_low, Y_low, X_vels, Y_vels, X_crust, Y_crust)     
             
@@ -77,7 +77,7 @@ def main():
             cbar2.ax.tick_params(labelsize=5)
             cbar2.set_label("T  [$^\circ$C]",size=7.5)
             # text showing time
-            ax1.annotate(''.join(['t = ',str("%.1f" % (time_array[t,1]/1.e6)),' Myr']), xy=(0.01,-0.5), xycoords='axes fraction',verticalalignment='center',horizontalalignment='left',fontsize=13,color='k')           
+            ax1.annotate(''.join(['t = ',str("%.1f" % (t)),' Myr']), xy=(0.01,-0.5), xycoords='axes fraction',verticalalignment='center',horizontalalignment='left',fontsize=13,color='k')           
 
 
             ax2=fig.add_subplot(gs[1,0], aspect=1)
@@ -101,7 +101,7 @@ def main():
             cbar.ax.tick_params(labelsize=5)
             cbar.set_label("log(${\eta}$)  [Pa.s]",size=7.5)
 
-            plt.savefig(plotname, bbox_inches='tight', format='eps', dpi=500)
+            plt.savefig(plotname, bbox_inches='tight', format='png', dpi=500)
             plt.clf()
             plt.close('all')
 

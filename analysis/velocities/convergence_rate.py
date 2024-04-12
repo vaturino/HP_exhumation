@@ -48,7 +48,7 @@ def main():
     ### get the time array and the number of time steps ###
     time_array = np.zeros((len(os.listdir(f"{csvs_loc}{m}/fields")),2)) 
     stat = pd.read_csv(f"{models_loc}{m}/statistics",skiprows=configs['head_lines'],sep='\s+',header=None)
-    time_array = grab_dimTime_fields(f"{csvs_loc}{m}", stat, time_array)
+    time_array = grab_dimTime_fields(f"{csvs_loc}{m}", stat, time_array, configs['head_lines']-1)
     tsteps = len(time_array)
     
     ### create the plot folder and plot name ###
@@ -56,9 +56,12 @@ def main():
     if not os.path.exists(plot_loc):
         os.mkdir(plot_loc)
     plotname = f"{plot_loc}/velocities.png"
+    txt_loc = f"{plot_loc}/txt_files"
+    if not os.path.exists(txt_loc):
+            os.mkdir(txt_loc)
        
     ### create the file to store the velocities ###
-    velocities = open(f"{plot_loc}/txt_files/2D_v.txt", "w+")
+    velocities = open(f"{txt_loc}/2D_v.txt", "w+")
     velocities.write("time SP OP conv_rate\n")
 
     conv_rate = np.zeros(tsteps)

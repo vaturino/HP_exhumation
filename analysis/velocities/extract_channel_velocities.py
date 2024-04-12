@@ -135,7 +135,7 @@ def main():
             line_bot.Y = sl*(line_bot.X-bot.X) +bot.Y
             line_bot = line_bot[((line_bot.X >= bot.X) & (line_bot.X <= bot.X + dbot*np.cos(alpha)))]
 
-            data_c=data[data["oc"]>0]
+            data_c=data[data["oc"] + data["sed"]>0]
             v_mid = griddata((data_c.loc[:,'Points:0']/1.e3, -(ymax_plot - data_c.loc[:,'Points:1'])/1.e3), data_c["vel"], (line_mid.X, line_mid.Y), method="cubic")
             v_top = griddata((data_c.loc[:,'Points:0']/1.e3, -(ymax_plot - data_c.loc[:,'Points:1'])/1.e3), data_c["vel"], (line_top.X, line_top.Y), method="cubic")
             v_bot = griddata((data_c.loc[:,'Points:0']/1.e3, -(ymax_plot - data_c.loc[:,'Points:1'])/1.e3), data_c["vel"], (line_bot.X, line_bot.Y), method="cubic")
