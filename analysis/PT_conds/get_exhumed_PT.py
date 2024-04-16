@@ -41,9 +41,9 @@ def main():
             configs = json.load(json_file)
     
     for ind_m, m in tqdm(enumerate(configs['models'])): 
-        time_array = np.zeros((len(os.listdir(f"{csvs_loc}{m}/particles")),2))   
+        time_array = np.zeros((len(os.listdir(f"{csvs_loc}{m}/fields")),2))   
         stat = pd.read_csv(f"{models_loc}{m}/statistics",skiprows=configs['head_lines'],sep='\s+',header=None)
-        time_array = grab_dimTime_particles(f"{csvs_loc}{m}/particles", stat, time_array)
+        time_array = grab_dimTime_particles(f"{csvs_loc}{m}/fields", stat, time_array)
 
         plot_loc = f"/home/vturino/PhD/projects/exhumation/plots/single_models/{configs['models'][ind_m]}"
         txt_loc = f'{plot_loc}/txt_files'
@@ -54,7 +54,7 @@ def main():
             os.mkdir(pt_loc)
 
         parts = f"{pt_loc}/pt_part_0_Myr_merged.txt"
-        ts = len(os.listdir(f"{pt_loc}"))
+        ts = int(len(os.listdir(f"{pt_loc}")))
         with open(parts,"r") as f:
             npart = len(f.readlines()) -1
     
@@ -67,14 +67,14 @@ def main():
         if not os.path.exists(pt_files):
             os.mkdir(pt_files)
 
-        # for i in range(npart):
-        #     pt = open(f"{pt_files}/pt_part_{i}.txt", "w+")
-        #     pt.write("time P T depth vy ocean\n")
-        # pt.close()
+        for i in range(npart):
+            pt = open(f"{pt_files}/pt_part_{i}.txt", "w+")
+            pt.write("time P T depth vy ocean\n")
+        pt.close()
 
-        # conds = pd.DataFrame(columns=["p", "T", "index", "velocity:1","C_1"])
+        # conds = pd.DataFrame(columns=["p", "T", "index", "velocity:1","oc"])
         # for t in tqdm(range(ts)):
-        #     idx = pd.read_csv(f"{pt_loc}/pt_part_{t/2}_Myr_merged.txt", sep="\s+", usecols= ["index"])
+        #     idx = pd.read_csv(f"{pt_loc}/pt_part_{t}_Myr_merged.txt", sep="\s+", usecols= ["index"])
         #     df = pd.read_parquet(f"{csvs_loc}{m}/particles/full.{t}.gzip", columns= ["p", "T", "Points:1", "velocity:1", "oc"])
         #     df=df.reset_index()
         #     conds = pd.merge(idx, df, on=["index"], how="inner")
@@ -97,12 +97,11 @@ def main():
             df = pd.read_parquet(f"{csvs_loc}{m}/particles/full.{t}.gzip", columns= ["p", "T", "Points:1", "velocity:1", "oc", "sed"])
             df=df.reset_index()
             conds = pd.merge(idx, df, on=["index"], how="inner")
-            # print(conds)
             P[:, t] = conds["p"]/1.e9
             T[:, t] = conds["T"]
             for i in range(npart):
                 pt = open(f"{pt_files}/pt_part_{i}.txt", "a+")
-                pt.write("%.0f %.3f %.3f %.3f %.3f %.1f %.1f\n" % (t, P[i, t], T[i, t], conds["Points:1"].iloc[i]/1.e3, conds["velocity:1"].iloc[i]*cmyr, conds["oc"].iloc[i], conds["sed"].iloc[i]))
+                pt.write("%.0f %.3f %.3f %.3f %.3f %.3f %.3f\n" % (t, P[i, t], T[i, t], conds["Points:1"].iloc[i]/1.e3, conds["velocity:1"].iloc[i]*cmyr, conds["oc"].iloc[i], conds["sed"].iloc[i]))
             pt.close()
             
         # for i in range(npart):

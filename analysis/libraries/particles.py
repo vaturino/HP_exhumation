@@ -34,27 +34,27 @@ def initial_particle_index (data: str, x: float, y: float):
 
 
 def load_dataset(loc_data:str, data: str):
-    if "initial oc" in data.columns:
+    if {"initial oc","initial sed"}.issubset(data.columns):
+        df = pd.read_parquet(loc_data, columns=["initial position:0", "initial position:1", "Points:0", "Points:1", "initial oc","initial sed"])
+    elif {"initial oc","initial serp"}.issubset(data.columns):
+        df = pd.read_parquet(loc_data, columns=["initial position:0", "initial position:1", "Points:0", "Points:1", "initial oc","initial serp"])
+    elif "initial oc" in data.columns:
         df = pd.read_parquet(loc_data, columns=["initial position:0", "initial position:1", "Points:0", "Points:1", "initial oc"])
-    elif {"initial ocean_crust","initial upper_cont","initial lower_cont"}.issubset(data.columns):
-        df = pd.read_csv(loc_data, columns=["initial position:0", "initial position:1", "Points:0", "Points:1", "initial ocean_crust","initial upper_cont","initial lower_cont"])
-    else:
-        df = pd.read_csv(loc_data, columns=["initial position:0", "initial position:1", "Points:0", "Points:1", "initial ocean_crust"])
     return (df)
 
 
 
 def get_incoming_particles(data: str, compo: float, from_trench: float, samples: float):
-    if "initial oc" in data.columns:
-        part = data[(data["initial oc"] >= compo) & (data["Points:0"] <= from_trench + 2.e3) & (data["Points:0"] >= from_trench - 2.e3)]
-        part = part.sample(n = samples).reset_index()
-    elif {"initial oc","initial sed"}.issubset(data.columns):
+    if {"initial oc","initial sed"}.issubset(data.columns):
         sumcomp = data["initial oc"] + data["initial sed"]
         part = data[(sumcomp >= compo) & (data["Points:0"] <= from_trench + 2.e3) & (data["Points:0"] >= from_trench - 2.e3)]
         part = part.sample(n = samples).reset_index()
-    else:
+    elif {"initial oc","initial serp"}.issubset(data.columns):
         sumcomp = data["initial oc"] + data["initial serp"]
         part = data[(sumcomp >= compo) & (data["Points:0"] <= from_trench + 2.e3) & (data["Points:0"] >= from_trench - 2.e3)]
+        part = part.sample(n = samples).reset_index()
+    elif "initial oc" in data.columns:
+        part = data[(data["initial oc"] >= compo) & (data["Points:0"] <= from_trench + 2.e3) & (data["Points:0"] >= from_trench - 2.e3)]
         part = part.sample(n = samples).reset_index()
     return (part)
 

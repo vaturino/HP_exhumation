@@ -64,9 +64,13 @@ def main():
 
     #create DataFrame
     df = pd.read_csv(vel_file, sep=" ", index_col=False)
+    df.time = df.time*1.e6/2
+    df.conv_rate = df.conv_rate/1.e2
     dimt = np.array(df.time).flatten()
-    cr = np.array(df.conv_rate/1e2).flatten()
+    cr = np.array(df.conv_rate).flatten()
     cr[0] = 0.
+
+    shift = 0.015 #m/yr
 
     # print(dimt, cr)
     # exit()
@@ -105,7 +109,7 @@ def main():
         reworked["b"].iloc[i]=summ[summ.iloc[:,0].str.contains('const')].iloc[i,1]
     for i in range(t):
         reworked["t"].iloc[i]=summ[summ.iloc[:,0].str.contains('break')].iloc[i,1]
-    reworked['t'].iloc[-1] = 70.e6
+    reworked['t'].iloc[-1] = df.time.iloc[-1]
     coeff = reworked.astype(float)
     coeff = get_const(coeff)
     n = len(coeff)
@@ -113,7 +117,7 @@ def main():
 
     
     t = np.zeros(bp+2)
-    t[-1] = 70.e6
+    t[-1] = df.time.iloc[-1]
     t[0] = 0.
     time = np.zeros((bp+1, 10))
     for n in range(bp+1):
@@ -126,24 +130,35 @@ def main():
     for n in range(bp+1):
         v[n] = coeff["a"].iloc[n]*time[n]+coeff["b"].iloc[n]
 
+    
+    v_shift = v.copy()
+    v_shift[:] = v_shift[:] + shift
+
     plt.plot(dimt, cr, '--', label='data')
     for i in range(bp+1):
         plt.plot(time[i], v[i], label=f"segment {i+1}")
+        plt.plot(time[i], v_shift[i], label=f"segment {i+1} shifted")
     plt.xlabel("Time (yr)")
     plt.ylabel("Orthogonal convergence rate (m/yr)")
     plt.legend()
     plt.savefig(f"{plot_loc}/fit_cr.eps")
     plt.close()
 
+    
 
     
 
     
     with open(f'{plot_loc}/txt_files/equations_cr.txt', 'w') as f:
         with redirect_stdout(f):
-            print("Equations for subducting plate:")
+            print("Original equations for subducting plate:")
             for i in range(n+1):
                 print(f"v{i+1},sp = ", coeff["a"].iloc[i], "*t " , "%+f" % coeff["b"].iloc[i], ";    for t < ", coeff["t"].iloc[i]/1e6, "Myr")
+            print("\n")
+            print("Shifted equations for subducting plate:")
+            for i in range(n+1):
+                print(f"v{i+1},sp = ", coeff["a"].iloc[i], "*t " , "%+f" % (coeff["b"].iloc[i]+shift), ";    for t < ", coeff["t"].iloc[i]/1e6, "Myr")
+            
     f.close()  
 
    

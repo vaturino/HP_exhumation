@@ -43,9 +43,9 @@ def main():
             setting = 'none'
     
     for ind_m, m in tqdm(enumerate(configs['models'])): 
-        time_array = np.zeros((len(os.listdir(f"{csvs_loc}{m}/particles")),2))   
+        time_array = np.zeros((len(os.listdir(f"{csvs_loc}{m}/fields")),2))   
         stat = pd.read_csv(f"{models_loc}{m}/statistics",skiprows=configs['head_lines'],sep='\s+',header=None)
-        time_array = grab_dimTime_particles(f"{csvs_loc}{m}/particles", stat, time_array)
+        time_array = grab_dimTime_particles(f"{csvs_loc}{m}/fields", stat, time_array)
 
         plot_loc = f"/home/vturino/PhD/projects/exhumation/plots/single_models/{configs['models'][ind_m]}"
         txt_loc = f'{plot_loc}/txt_files'
@@ -67,18 +67,11 @@ def main():
         for i in range(0,npa):
             p = pd.read_csv(f"{pt_files}/pt_part_{i}.txt", sep="\s+")
             df = p[p["P"] <= 4.5]
-            if not df.tail(2).depth.is_monotonic_decreasing:
-            # if not p.tail(10).depth.is_monotonic_decreasing:
-                if (p.P > 0.5).any(): 
+            if not df.tail(5).depth.is_monotonic_decreasing:
+                if (p.P > 0.3).any():
                     exh[i] = i
-                    # sns.lineplot(p["T"], p["P"], legend = False)
-                    # plt.ylim(0,8)
-            # elif  p.P.is_monotonic_increasing:
             else:
-                # print("here")
                 if (p.P > 2.0).any(): 
-                    # print("here")
-                    # p["T"], p["P"] = savgol_filter((p["T"], p["P"]), 3,1)
                     plt.plot(p["T"] - 273, p["P"], linewidth = 0.5, c = pal1(i))
                     plt.ylim(0,4.5)
                     plt.xlim(0,1200)
@@ -86,7 +79,8 @@ def main():
         plt.close()
     
         exh = pd.Series(exh[~np.isnan(exh)])
-        ts = len(time_array)
+        print("num of potentially exhmed = ", len(exh), " particles")
+        ts = int(len(time_array)/2)
         P = np.zeros(ts-1)
         T = np.zeros(ts-1)
         P[:]=np.nan
@@ -104,45 +98,47 @@ def main():
 
         for ind_j, j in tqdm(enumerate(exh[::freq])):
             e = pd.read_csv(f"{pt_files}/pt_part_{int(j)}.txt", sep="\s+")
-            e["P"][e["P"] < 0] = np.nan
-            e['P_shifted'] = e['P'].shift(1)
-            e['abs_change'] = abs(e['P'] - e['P_shifted'])
-            e['change_exceeds_threshold'] = np.where(e['abs_change'] > threshold, 1, 0)
-            # if (e.P < 4).all(): 
-            if (e['change_exceeds_threshold'] == 0).all():
-                if e.P.iat[-1] <= e.P.iat[-10]:
-                    # Max = e["P"].max()
-                    min = e["P"].idxmin()
-                    a = e.truncate(before = min)
-                    # print(Max - min)
-        #             if (Max - min) > 0.6:
-                    # P[:] = e["P"]
-                    # T[:] = e["T"] -273
-                    idxp = e["P"].idxmax()
-                    idxt = e["T"].idxmax()
-            
-                    maxp[ind_j,0] = e["P"].iloc[idxp]
-                    maxp[ind_j,1] = e["T"].iloc[idxp] - 273.
-                    maxt[ind_j,0] = e["P"].iloc[idxt]
-                    maxt[ind_j,1] = e["T"].iloc[idxt] - 273.
-                    # a["T"] =a["T"] -273
-
-                    # if e["ocean"].iloc[idxp] != 0:
-                    #     setting = 'oc'
-                    # elif e["sed"].iloc[idxp] != 0:
-                    #     setting = 'sed'
-                    # elif e["serpentinite"].iloc[idxp] != 0:
-                    #     setting = 'serpentinite'
-                    maxx.write("%.3f %.3f %.3f %.3f %s\n" % (maxp[ind_j,0], maxp[ind_j,1], maxt[ind_j,0], maxt[ind_j,1], setting))
-                    
-                    plt.plot(a["T"] -273, a["P"], c = pal2(ind_j), linewidth = 1)
-                    plt.xlabel("T ($^\circ$C)")
-                    plt.ylabel("P (GPa)")
-                    # plt.xlim(0,800)
-                    # plt.ylim(0,3)
-                    plt.title("P-T-t paths")
-                    plt.savefig(f"{plot_loc}/potential_exhum.png", dpi = 1000)
-                    count = count+1
+            # plt.plot(e["T"] - 273, e["P"], linewidth = 0.5, c = pal1(i))
+            # plt.ylim(0,4.5)
+            # plt.xlim(0,1200)
+            # plt.savefig(f"{plot_loc}/unfiltered.png", dpi = 1000)
+            # e["P"][e["P"] < 0] = np.nan
+            # e['P_shifted'] = e['P'].shift(1)
+            # e['abs_change'] = abs(e['P'] - e['P_shifted'])
+            # e['change_exceeds_threshold'] = np.where(e['abs_change'] > threshold, 1, 0)
+            # # if (e.P < 4).all(): 
+            # if (e['change_exceeds_threshold'] == 0).all():
+            if e.P.iat[-1] <= e.P.iat[-5]:
+                # Max = e["P"].max()
+                min = e["P"].idxmin()
+                a = e.truncate(before = min)
+                idxp = e["P"].idxmax()
+                idxt = e["T"].idxmax()
+        
+                maxp[ind_j,0] = e["P"].iloc[idxp]
+                maxp[ind_j,1] = e["T"].iloc[idxp] - 273.
+                maxt[ind_j,0] = e["P"].iloc[idxt]
+                maxt[ind_j,1] = e["T"].iloc[idxt] - 273.
+                
+                if e["ocean"].iloc[idxp] != 0:
+                    if e["sediments"].iloc[idxp] != 0:
+                        if e['ocean'].iloc[idxp] > e['sediments'].iloc[idxp]:
+                            setting = 'oc'
+                        else:
+                            setting = 'sed'
+                    else:
+                        setting = 'oc'
+                maxx.write("%.3f %.3f %.3f %.3f %s\n" % (maxp[ind_j,0], maxp[ind_j,1], maxt[ind_j,0], maxt[ind_j,1], setting))
+                
+                plt.plot(a["T"] -273, a["P"], c = pal2(ind_j), linewidth = 1)
+                plt.scatter(a["T"].iloc[0] -273, a["P"].iloc[0], c = 'red', s = 10)
+                plt.xlabel("T ($^\circ$C)")
+                plt.ylabel("P (GPa)")
+                # plt.xlim(0,800)
+                # plt.ylim(0,3)
+                plt.title("P-T-t paths")
+                plt.savefig(f"{plot_loc}/potential_exhum.png", dpi = 1000)
+                count = count+1
         
         plt.close()
         maxx.close()
@@ -180,7 +176,7 @@ def main():
         plt.savefig(f"{plot_loc}/maxT.png", dpi = 1000)
         plt.close()
 
-        print("num of exhumed = ", count)
+        print("num of exhumed = ", count, " particles")
 
 if __name__ == "__main__":
     main()
