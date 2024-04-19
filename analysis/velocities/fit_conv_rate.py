@@ -64,7 +64,7 @@ def main():
 
     #create DataFrame
     df = pd.read_csv(vel_file, sep=" ", index_col=False)
-    df.time = df.time*1.e6/2
+    # df.time = df.time*1.e6/2
     df.conv_rate = df.conv_rate/1.e2
     dimt = np.array(df.time).flatten()
     cr = np.array(df.conv_rate).flatten()

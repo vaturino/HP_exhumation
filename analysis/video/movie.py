@@ -24,7 +24,7 @@ def main():
     fnumber = len(os.listdir(image_folder))
 
 
-    out_video =  np.empty([fnumber, 1895,2697,3], dtype = np.uint8)
+    out_video =  np.empty([fnumber, 2808,3742,3], dtype = np.uint8)
     out_video =  out_video.astype(np.uint8)
 
     for i in range(1, fnumber):

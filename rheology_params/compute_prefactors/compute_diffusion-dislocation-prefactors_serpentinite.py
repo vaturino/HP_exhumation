@@ -2,10 +2,15 @@
 import numpy as np
 
 # reference conditions for the upper mantle
-depth_ref  = 100e3 # m
+# depth_ref  = 30e3 # m
+# visc_ref   = 1e21
+# temp_ref   = 495
+depth_ref  = 30e3 # m
 visc_ref   = 1e20
-temp_ref   = 915
+temp_ref   = 550
+# strain_ref = 2.6e-16
 midmantle_viscosity_jump = 25
+
 
 cr_yr = 0.05 #m/yr
 yr = 365*24*60*60
@@ -17,12 +22,12 @@ print("strain rate = ", strain_ref, "s-1")
 
 
 # rheological parameters (e.g. Hirth and Kohlstedt, 2003)
-Edisl = 480e3; Ediff = 0
-Vdisl = 0;  Vdiff = 0; Vdiff_lowermant = 0
-n = 3.4;        R = 8.314
+Edisl = 16e3; Ediff = 0
+Vdisl = 0;  Vdiff = 3.2e-6; Vdiff_lowermant = 0
+n = 3.8;        R = 8.314
 adiabat = 0.3; # K/km
 temp_ref   = temp_ref + (depth_ref * 1e-3 * adiabat)
-press_ref  = 2900. * 9.81 * depth_ref
+press_ref  = 2700. * 9.81 * depth_ref
 
 
 # compute dislocation creep prefactor using:

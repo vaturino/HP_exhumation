@@ -73,12 +73,11 @@ def main():
             tmp = get_incoming_particles(full, 0.1, incoming, samples)
             p = pd.concat([p,tmp])
 
-            
 
         p = p.drop_duplicates(subset = ["initial position:0", "initial position:1"], keep='last')
-        allp = pd.read_parquet(f"{csvs_loc}{m}/particles/full.50.gzip", columns=["initial position:0", "initial position:1"]).reset_index()
+        allp = pd.read_parquet(f"{csvs_loc}{m}/particles/full.{ts}.gzip", columns=["initial position:0", "initial position:1"]).reset_index()
         allp = allp[allp['initial position:1'] >=zmax - dlim]
-        merged = pd.merge(p, allp, on=["initial position:0", "initial position:1"], how="outer")
+        merged = pd.merge(p, allp, on=["initial position:0", "initial position:1"], how="inner")
         merged = merged.drop_duplicates(subset = ["initial position:0", "initial position:1"], keep=False)
         a = pd.concat([p, merged]).drop_duplicates(subset = ["initial position:0", "initial position:1"], keep=False)
 
@@ -92,7 +91,7 @@ def main():
         for t in tqdm(range(0,ts)):
             allp = pd.read_parquet(f"{csvs_loc}{m}/particles/full.{t}.gzip", columns=["initial position:0", "initial position:1", "oc", "sed"]).reset_index()
             allp = allp[allp['initial position:1'] >=zmax - dlim]
-            merged = pd.merge(p, allp, on=["initial position:0", "initial position:1"], how="outer")
+            merged = pd.merge(p, allp, on=["initial position:0", "initial position:1"], how="inner")
             merged = merged.drop_duplicates(subset = ["initial position:0", "initial position:1"], keep='last')
             filename = f"{pt_loc}/pt_part_{t}_Myr_merged.txt"
             # print(merged)

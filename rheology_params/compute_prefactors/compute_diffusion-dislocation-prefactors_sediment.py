@@ -2,9 +2,12 @@
 import numpy as np
 
 # reference conditions for the upper mantle
-depth_ref  = 10e3 # m
-visc_ref   = 1e21
-temp_ref   = 360
+# depth_ref  = 30e3 # m
+# visc_ref   = 1e21
+# temp_ref   = 495
+depth_ref  = 20e3 # m
+visc_ref   = 1e20
+temp_ref   = 550
 # strain_ref = 2.6e-16
 midmantle_viscosity_jump = 25
 

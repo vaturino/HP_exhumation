@@ -92,7 +92,7 @@ def main():
         threshold = .09
         filename = f"{txt_loc}/maxPT.txt"
         maxx = open(filename,"w+")
-        maxx.write("maxPP maxPT maxTP maxTT terrain\n")
+        maxx.write("part maxPP maxPT maxTP maxTT terrain\n")
 
         count = 0
 
@@ -108,6 +108,7 @@ def main():
             # e['change_exceeds_threshold'] = np.where(e['abs_change'] > threshold, 1, 0)
             # # if (e.P < 4).all(): 
             # if (e['change_exceeds_threshold'] == 0).all():
+            fig, ax = plt.subplots(1, 2, figsize = (10,5))
             if e.P.iat[-1] <= e.P.iat[-5]:
                 # Max = e["P"].max()
                 min = e["P"].idxmin()
@@ -119,27 +120,36 @@ def main():
                 maxp[ind_j,1] = e["T"].iloc[idxp] - 273.
                 maxt[ind_j,0] = e["P"].iloc[idxt]
                 maxt[ind_j,1] = e["T"].iloc[idxt] - 273.
+
+                if len(a.P) > 5 :
+                    if e.P.iloc[0]<0.3:
                 
-                if e["ocean"].iloc[idxp] != 0:
-                    if e["sediments"].iloc[idxp] != 0:
-                        if e['ocean'].iloc[idxp] > e['sediments'].iloc[idxp]:
-                            setting = 'oc'
-                        else:
-                            setting = 'sed'
-                    else:
-                        setting = 'oc'
-                maxx.write("%.3f %.3f %.3f %.3f %s\n" % (maxp[ind_j,0], maxp[ind_j,1], maxt[ind_j,0], maxt[ind_j,1], setting))
+                        if e["ocean"].iloc[idxp] != 0:
+                            if e["sediments"].iloc[idxp] != 0:
+                                if e['ocean'].iloc[idxp] > e['sediments'].iloc[idxp]:
+                                    setting = 'oc'
+                                else:
+                                    setting = 'sed'
+                            else:
+                                setting = 'oc'
+                        maxx.write("%.0f %.3f %.3f %.3f %.3f %s\n" % (j, maxp[ind_j,0], maxp[ind_j,1], maxt[ind_j,0], maxt[ind_j,1], setting))
+                        ax[0].plot(e["T"] -273, e["P"], c = pal2(ind_j), linewidth = 1)
+                        ax[0].scatter(e["T"].iloc[0] -273, e["P"].iloc[0], c = 'red', s = 10)
+                        ax[0].set_xlabel("T ($^\circ$C)")
+                        ax[0].set_ylabel("P (GPa)")
+                        # plt.xlim(0,800)
+                        # plt.ylim(0,3)
+                        ax[0].set_title("P-T-t paths")
+
+                        ax[1].plot(e["x"]/1e3, e["y"]/1e3, c = pal2(ind_j), linewidth = 1)
+                        ax[1].scatter(e["x"].iloc[0]/1e3, e["y"].iloc[0]/1e3, c = 'red', s = 10)
+                        ax[1].set_xlabel("x (km)")
+                        ax[1].set_ylabel("y (km)")
+                        ax[1].set_title("particle path")
+
+                        plt.savefig(f"{plot_loc}/potential_exhum.png", dpi = 1000)
+                        count = count+1
                 
-                plt.plot(a["T"] -273, a["P"], c = pal2(ind_j), linewidth = 1)
-                plt.scatter(a["T"].iloc[0] -273, a["P"].iloc[0], c = 'red', s = 10)
-                plt.xlabel("T ($^\circ$C)")
-                plt.ylabel("P (GPa)")
-                # plt.xlim(0,800)
-                # plt.ylim(0,3)
-                plt.title("P-T-t paths")
-                plt.savefig(f"{plot_loc}/potential_exhum.png", dpi = 1000)
-                count = count+1
-        
         plt.close()
         maxx.close()
         

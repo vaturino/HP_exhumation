@@ -67,61 +67,26 @@ def main():
         if not os.path.exists(pt_files):
             os.mkdir(pt_files)
 
-        for i in range(npart):
-            pt = open(f"{pt_files}/pt_part_{i}.txt", "w+")
-            pt.write("time P T depth vy ocean\n")
-        pt.close()
-
-        # conds = pd.DataFrame(columns=["p", "T", "index", "velocity:1","oc"])
-        # for t in tqdm(range(ts)):
-        #     idx = pd.read_csv(f"{pt_loc}/pt_part_{t}_Myr_merged.txt", sep="\s+", usecols= ["index"])
-        #     df = pd.read_parquet(f"{csvs_loc}{m}/particles/full.{t}.gzip", columns= ["p", "T", "Points:1", "velocity:1", "oc"])
-        #     df=df.reset_index()
-        #     conds = pd.merge(idx, df, on=["index"], how="inner")
-        #     P[:, t] = conds["p"]/1.e9
-        #     T[:, t] = conds["T"]
-        #     for i in range(npart):
-        #         pt = open(f"{pt_files}/pt_part_{i}.txt", "a+")
-        #         pt.write("%.1f %.3f %.3f %.3f %.3f %.1f\n" % (time_array[t,1]*1e-6, P[i, t], T[i, t], conds["Points:1"].iloc[i]/1.e3, conds["velocity:1"].iloc[i]*cmyr, conds["oc"].iloc[i]))
-        #     pt.close()
-
 
         for i in range(npart):
             pt = open(f"{pt_files}/pt_part_{i}.txt", "w+")
-            pt.write("ts P T depth vy ocean sediments\n")
+            pt.write("ts x y P T depth vy ocean sediments\n")
         pt.close()
 
-        conds = pd.DataFrame(columns=["p", "T", "index", "velocity:1","oc", "sed"])
+        conds = pd.DataFrame(columns=["position:0", "position:1", "p", "T", "index", "velocity:1","oc", "sed"])
         for t in tqdm(range(1,ts)):
+        # for t in tqdm(range(12,13)):
             idx = pd.read_csv(f"{pt_loc}/pt_part_{t}_Myr_merged.txt", sep="\s+", usecols= ["index"])
-            df = pd.read_parquet(f"{csvs_loc}{m}/particles/full.{t}.gzip", columns= ["p", "T", "Points:1", "velocity:1", "oc", "sed"])
+            df = pd.read_parquet(f"{csvs_loc}{m}/particles/full.{t}.gzip", columns= ["Points:0", "Points:1", "p", "T", "Points:1", "velocity:1", "oc", "sed"])
             df=df.reset_index()
             conds = pd.merge(idx, df, on=["index"], how="inner")
+            # print(conds)
             P[:, t] = conds["p"]/1.e9
             T[:, t] = conds["T"]
             for i in range(npart):
                 pt = open(f"{pt_files}/pt_part_{i}.txt", "a+")
-                pt.write("%.0f %.3f %.3f %.3f %.3f %.3f %.3f\n" % (t, P[i, t], T[i, t], conds["Points:1"].iloc[i]/1.e3, conds["velocity:1"].iloc[i]*cmyr, conds["oc"].iloc[i], conds["sed"].iloc[i]))
+                pt.write("%.0f %.3f %.3f  %.3f %.3f %.3f %.3f %.3f %.3f\n" % (t, conds["Points:0"].iloc[i], conds["Points:1"].iloc[i], P[i, t], T[i, t], conds["Points:1"].iloc[i]/1.e3, conds["velocity:1"].iloc[i]*cmyr, conds["oc"].iloc[i], conds["sed"].iloc[i]))
             pt.close()
-            
-        # for i in range(npart):
-        #     pt = open(f"{pt_files}/pt_part_{i}.txt", "w+")
-        #     pt.write("ts P T depth vy ocean serpentiite\n")
-        # pt.close()
-
-        # conds = pd.DataFrame(columns=["p", "T", "index", "velocity:1","oc", "serp"])
-        # for t in tqdm(range(1,ts)):
-        #     idx = pd.read_csv(f"{pt_loc}/pt_part_{t/2}_Myr_merged.txt", sep="\s+", usecols= ["index"])
-        #     df = pd.read_parquet(f"{csvs_loc}{m}/particles/full.{t}.gzip", columns= ["p", "T", "Points:1", "velocity:1", "oc", "serp"])
-        #     df=df.reset_index()
-        #     conds = pd.merge(idx, df, on=["index"], how="inner")
-        #     # print(conds)
-        #     P[:, t] = conds["p"]/1.e9
-        #     T[:, t] = conds["T"]
-        #     for i in range(npart):
-        #         pt = open(f"{pt_files}/pt_part_{i}.txt", "a+")
-        #         pt.write("%.0f %.3f %.3f %.3f %.3f %.1f %.1f\n" % (t, P[i, t], T[i, t], conds["Points:1"].iloc[i]/1.e3, conds["velocity:1"].iloc[i]*cmyr, conds["oc"].iloc[i], conds["serp"].iloc[i]))
-        #     pt.close()
      
 
 
